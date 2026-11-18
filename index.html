@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Калькулятор раскроя листа</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#fff; --text:#1d2330; --muted:#6b7280; --line:#e3e6ea;
+    --accent:#2563eb; --sheet:#eef1f5; --part:#3b82f6; --part-stroke:#1e40af; --err:#b91c1c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  .wrap{max-width:1200px;margin:0 auto;padding:24px 16px}
+  h1{font-size:22px;margin:0 0 18px}
+  .grid{display:grid;grid-template-columns:340px 1fr;gap:18px}
+  @media (max-width:860px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .card h2{font-size:15px;margin:0 0 12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .group{margin-bottom:18px}
+  .row{display:flex;gap:10px}
+  .row > label{flex:1}
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:10px}
+  input[type=number]{width:100%;margin-top:4px;padding:9px 10px;font-size:15px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text)}
+  input[type=number]:focus{outline:2px solid var(--accent);border-color:transparent}
+  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:12px}
+  .seg button{flex:1;padding:8px;border:0;background:#fff;font-size:14px;cursor:pointer;color:var(--text)}
+  .seg button.on{background:var(--accent);color:#fff}
+  .check{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text)}
+  .hidden{display:none}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .tabs button{padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-size:13px}
+  .tabs button.on{background:var(--text);color:#fff;border-color:var(--text)}
+  .canvas{width:100%;background:#fafbfc;border:1px solid var(--line);border-radius:8px;padding:10px}
+  svg{width:100%;height:auto;display:block;max-height:560px}
+  .msg{color:var(--err);font-weight:600;padding:10px 0}
+  .totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:18px}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .tile .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .tile .v{font-size:22px;font-weight:700;margin-top:4px}
+  .tile .s{font-size:13px;color:var(--muted);margin-top:4px}
+  .tile.main{border-color:var(--accent)}
+  .note{font-size:12px;color:var(--muted);margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Калькулятор материала (раскрой листа)</h1>
+
+  <div class="grid">
+    <!-- ===== Ввод ===== -->
+    <div class="card">
+      <div class="group">
+        <h2>Лист, мм</h2>
+        <div class="row">
+          <label>Длина<input type="number" id="sheetL" value="2500" min="0" step="any"></label>
+          <label>Ширина<input type="number" id="sheetW" value="1250" min="0" step="any"></label>
+        </div>
+        <label>Отступ от края листа<input type="number" id="edge" value="0" min="0" step="any"></label>
+      </div>
+
+      <div class="group">
+        <h2>Деталь, мм</h2>
+        <div class="seg">
+          <button id="btnRect" class="on" type="button">Прямоугольник</button>
+          <button id="btnCircle" type="button">Круг</button>
+        </div>
+        <div id="rectFields">
+          <div class="row">
+            <label>Длина<input type="number" id="partL" value="300" min="0" step="any"></label>
+            <label>Ширина<input type="number" id="partW" value="300" min="0" step="any"></label>
+          </div>
+          <label class="check"><input type="checkbox" id="rotate" checked> Разрешить поворот на 90°</label>
+        </div>
+        <div id="circleFields" class="hidden">
+          <label>Диаметр<input type="number" id="diam" value="300" min="0" step="any"></label>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2>Раскрой</h2>
+        <label>Технический отступ между деталями<input type="number" id="gap" value="3" min="0" step="any"></label>
+        <label>Количество деталей, шт<input type="number" id="qty" value="50" min="1" step="1"></label>
+      </div>
+    </div>
+
+    <!-- ===== Картинка ===== -->
+    <div class="card">
+      <h2>Раскладка на листе</h2>
+      <div class="tabs" id="tabs"></div>
+      <div class="canvas"><div id="msg" class="msg hidden"></div><svg id="svg"></svg></div>
+      <div class="note" id="layoutNote"></div>
+    </div>
+  </div>
+
+  <!-- ===== Итог ===== -->
+  <div class="totals" id="totals"></div>
+</div>
+
+<script>
+/* =========================================================
+   РАСЧЁТ
+   Все размеры внутри переводятся в целые микрометры (мм × 1000),
+   чтобы деление и округление вниз были точными, без ошибок
+   плавающей точки (например, 0.1 + 0.2).
+   ========================================================= */
+const U = 1000;
+const toU = v => Math.round(v * U);
+
+/* Сколько деталей w×h помещается в область W×L с зазором g (по осям). */
+function gridCount(W, L, w, h, g) {
+  if (w > W || h > L || w <= 0 || h <= 0) return [0, 0];
+  return [Math.floor((W - w) / (w + g)) + 1, Math.floor((L - h) / (h + g)) + 1];
+}
+
+/* Разложить сеткой и вернуть координаты. limitCols/limitRows — необязательные ограничения. */
+function gridPlace(x0, y0, W, L, w, h, g, out, limitCols, limitRows) {
+  let [c, r] = gridCount(W, L, w, h, g);
+  if (limitCols !== undefined) c = Math.min(c, limitCols);
+  if (limitRows !== undefined) r = Math.min(r, limitRows);
+  for (let i = 0; i < r; i++)
+    for (let j = 0; j < c; j++)
+      out.push({ x: x0 + j * (w + g), y: y0 + i * (h + g), w, h });
+  return c * r;
+}
+
+/* Лучшее заполнение области одной ориентацией (из доступных). */
+function bestGrid(x0, y0, W, L, orients, g) {
+  let best = [];
+  for (const [a, b] of orients) {
+    const p = [];
+    gridPlace(x0, y0, W, L, a, b, g, p);
+    if (p.length > best.length) best = p;
+  }
+  return best;
+}
+
+/* Прямоугольные детали: перебираем сетку в обеих ориентациях
+   и комбинированные схемы (блок в одной ориентации + остаток в другой). */
+function rectLayout(W, L, w, h, g, rotate, x0, y0) {
+  const orients = [[w, h]];
+  if (rotate && w !== h) orients.push([h, w]);
+
+  let best = { parts: [], name: '' };
+  const consider = (parts, name) => { if (parts.length > best.parts.length) best = { parts, name }; };
+
+  for (const [a, b] of orients) {
+    const p = [];
+    gridPlace(x0, y0, W, L, a, b, g, p);
+    consider(p, 'сетка');
+  }
+
+  for (const [a, b] of orients) {
+    const [maxC, maxR] = gridCount(W, L, a, b, g);
+    // Вертикальное деление: k столбцов слева, остаток справа
+    for (let k = 1; k < maxC; k++) {
+      const p = [];
+      gridPlace(x0, y0, W, L, a, b, g, p, k);
+      const used = k * (a + g);
+      p.push(...bestGrid(x0 + used, y0, W - used, L, orients, g));
+      consider(p, 'комбинированная');
+    }
+    // Горизонтальное деление: k рядов сверху, остаток снизу
+    for (let k = 1; k < maxR; k++) {
+      const p = [];
+      gridPlace(x0, y0, W, L, a, b, g, p, undefined, k);
+      const used = k * (b + g);
+      p.push(...bestGrid(x0, y0 + used, W, L - used, orients, g));
+      consider(p, 'комбинированная');
+    }
+  }
+  return best;
+}
+
+/* Круглые детали: квадратная сетка и шахматная (сотовая) укладка в двух направлениях.
+   Шаг между центрами p = D + g, поэтому между кругами всегда ровно ≥ g. */
+function circleLayout(W, L, D, g, x0, y0) {
+  const p = D + g;
+  let best = { parts: [], name: '' };
+  const consider = (parts, name) => { if (parts.length > best.parts.length) best = { parts, name }; };
+
+  // квадратная сетка
+  const sq = [];
+  gridPlace(x0, y0, W, L, D, D, g, sq);
+  consider(sq.map(r => ({ cx: r.x + D / 2, cy: r.y + D / 2, d: D })), 'ряды');
+
+  // шахматная укладка
+  const hex = (A, B, swap) => {
+    const parts = [];
+    if (A < D || B < D) return parts;
+    const dy = p * Math.sqrt(3) / 2;
+    const rows = Math.floor((B - D) / dy + 1e-9) + 1;
+    const c0 = Math.floor((A - D) / p) + 1;
+    const c1 = A >= D + p / 2 ? Math.floor((A - D - p / 2) / p) + 1 : 0;
+    for (let i = 0; i < rows; i++) {
+      const off = i % 2 ? p / 2 : 0;
+      const n = i % 2 ? c1 : c0;
+      for (let j = 0; j < n; j++) {
+        const u = D / 2 + off + j * p, v = D / 2 + i * dy;
+        parts.push(swap ? { cx: x0 + v, cy: y0 + u, d: D } : { cx: x0 + u, cy: y0 + v, d: D });
+      }
+    }
+    return parts;
+  };
+  consider(hex(W, L, false), 'шахматная');
+  consider(hex(L, W, true), 'шахматная');
+  return best;
+}
+
+/* ========================================================= */
+const $ = id => document.getElementById(id);
+let shape = 'rect';
+let view = 'full';
+let lastResult = null;
+
+$('btnRect').onclick = () => setShape('rect');
+$('btnCircle').onclick = () => setShape('circle');
+function setShape(s) {
+  shape = s;
+  $('btnRect').classList.toggle('on', s === 'rect');
+  $('btnCircle').classList.toggle('on', s === 'circle');
+  $('rectFields').classList.toggle('hidden', s !== 'rect');
+  $('circleFields').classList.toggle('hidden', s !== 'circle');
+  calc();
+}
+document.querySelectorAll('input').forEach(i => i.addEventListener('input', calc));
+
+const num = id => { const v = parseFloat(String($(id).value).replace(',', '.')); return isFinite(v) ? v : NaN; };
+const fmt = (v, d = 2) => v.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: d });
+
+function calc() {
+  const sL = num('sheetL'), sW = num('sheetW'), edge = num('edge') || 0, g = num('gap');
+  const qty = Math.floor(num('qty'));
+  const pL = num('partL'), pW = num('partW'), D = num('diam');
+
+  const err = t => { showError(t); $('totals').innerHTML = ''; $('tabs').innerHTML = ''; $('layoutNote').textContent = ''; };
+
+  if (!(sL > 0 && sW > 0)) return err('Укажите размеры листа');
+  if (!(g >= 0)) return err('Технический отступ не может быть отрицательным');
+  if (edge < 0) return err('Отступ от края не может быть отрицательным');
+  if (!(qty >= 1)) return err('Укажите количество деталей');
+  if (shape === 'rect' && !(pL > 0 && pW > 0)) return err('Укажите размеры детали');
+  if (shape === 'circle' && !(D > 0)) return err('Укажите диаметр детали');
+
+  const SX = toU(sL), SY = toU(sW), E = toU(edge), G = toU(g);
+  const AX = SX - 2 * E, AY = SY - 2 * E; // рабочая область
+  if (AX <= 0 || AY <= 0) return err('Отступ от края больше половины листа');
+
+  const res = shape === 'rect'
+    ? rectLayout(AX, AY, toU(pL), toU(pW), G, $('rotate').checked, E, E)
+    : circleLayout(AX, AY, toU(D), G, E, E);
+
+  const perSheet = res.parts.length;
+  if (perSheet === 0) return err('Деталь не помещается на лист такого размера');
+
+  const sheets = Math.ceil(qty / perSheet);
+  const lastCount = qty - (sheets - 1) * perSheet;
+
+  // площади в мм² (из округлённых до 0,001 мм значений)
+  const sheetArea = (SX / U) * (SY / U);
+  const partArea = shape === 'rect' ? (toU(pL) / U) * (toU(pW) / U) : Math.PI * Math.pow(toU(D) / U, 2) / 4;
+  const totalArea = sheetArea * sheets;
+  const usedArea = partArea * qty;
+  const waste = totalArea - usedArea;
+
+  lastResult = { res, perSheet, sheets, lastCount, SX, SY, E };
+  if (sheets === 1 || lastCount === perSheet) view = 'full';
+  hideError();
+  renderTabs();
+  draw();
+
+  $('layoutNote').textContent =
+    `Схема: ${res.name}. На полном листе ${perSheet} шт.` +
+    (sheets > 1 && lastCount !== perSheet ? ` На последнем листе ${lastCount} шт.` : '');
+
+  $('totals').innerHTML = `
+    <div class="tile main"><div class="k">Нужно листов</div><div class="v">${sheets} шт</div>
+      <div class="s">Лист ${fmt(sL)} × ${fmt(sW)} мм</div></div>
+    <div class="tile"><div class="k">Деталей на листе</div><div class="v">${perSheet} шт</div>
+      <div class="s">${sheets > 1 ? `${sheets - 1} полн. + последний: ${lastCount} шт` : `заказано: ${qty} шт`}</div></div>
+    <div class="tile main"><div class="k">Площадь листов</div><div class="v">${fmt(totalArea / 1e6, 4)} м²</div>
+      <div class="s">${fmt(totalArea / 100, 2)} см² · ${fmt(totalArea, 2)} мм²</div></div>
+    <div class="tile"><div class="k">Площадь деталей</div><div class="v">${fmt(usedArea / 1e6, 4)} м²</div>
+      <div class="s">${fmt(usedArea / 100, 2)} см² · ${qty} шт</div></div>
+    <div class="tile"><div class="k">Отход</div><div class="v">${fmt(waste / 1e6, 4)} м²</div>
+      <div class="s">${fmt(waste / 100, 2)} см² · использование ${fmt(usedArea / totalArea * 100, 1)}%</div></div>`;
+}
+
+function renderTabs() {
+  const { sheets, perSheet, lastCount } = lastResult;
+  const t = $('tabs');
+  if (sheets === 1 || lastCount === perSheet) {
+    t.innerHTML = `<button class="on" type="button">${sheets === 1 ? 'Лист' : `Листы 1–${sheets}`} · ${sheets === 1 ? lastCount : perSheet} шт</button>`;
+    return;
+  }
+  t.innerHTML = `
+    <button type="button" data-v="full" class="${view === 'full' ? 'on' : ''}">${sheets - 1 === 1 ? 'Лист 1' : `Листы 1–${sheets - 1}`} · ${perSheet} шт</button>
+    <button type="button" data-v="last" class="${view === 'last' ? 'on' : ''}">Лист ${sheets} · ${lastCount} шт</button>`;
+  t.querySelectorAll('button').forEach(b => b.onclick = () => { view = b.dataset.v; renderTabs(); draw(); });
+}
+
+function draw() {
+  const { res, perSheet, sheets, lastCount, SX, SY, E } = lastResult;
+  const count = (view === 'last' || sheets === 1) ? lastCount : perSheet;
+  const W = SX / U, H = SY / U, pad = Math.max(W, H) * 0.07;
+  const fs = Math.max(W, H) * 0.028;
+  let s = `<rect x="0" y="0" width="${W}" height="${H}" fill="var(--sheet)" stroke="#94a3b8" stroke-width="${fs * 0.12}"/>`;
+  if (E > 0) s += `<rect x="${E / U}" y="${E / U}" width="${(SX - 2 * E) / U}" height="${(SY - 2 * E) / U}" fill="none" stroke="#cbd5e1" stroke-dasharray="${fs * 0.5}" stroke-width="${fs * 0.08}"/>`;
+  res.parts.slice(0, count).forEach((p, i) => {
+    if (p.d !== undefined) {
+      s += `<circle cx="${p.cx / U}" cy="${p.cy / U}" r="${p.d / U / 2}" fill="var(--part)" fill-opacity=".75" stroke="var(--part-stroke)" stroke-width="${fs * 0.06}"/>`;
+    } else {
+      s += `<rect x="${p.x / U}" y="${p.y / U}" width="${p.w / U}" height="${p.h / U}" fill="var(--part)" fill-opacity=".75" stroke="var(--part-stroke)" stroke-width="${fs * 0.06}"/>`;
+    }
+  });
+  // размеры листа
+  s += `<text x="${W / 2}" y="${-pad * 0.35}" font-size="${fs}" text-anchor="middle" fill="#475569">${fmt(W)} мм</text>`;
+  s += `<text x="${-pad * 0.35}" y="${H / 2}" font-size="${fs}" text-anchor="middle" fill="#475569" transform="rotate(-90 ${-pad * 0.35} ${H / 2})">${fmt(H)} мм</text>`;
+  const svg = $('svg');
+  svg.setAttribute('viewBox', `${-pad} ${-pad} ${W + pad * 1.4} ${H + pad * 1.4}`);
+  svg.innerHTML = s;
+}
+
+function showError(t) { $('msg').textContent = t; $('msg').classList.remove('hidden'); $('svg').innerHTML = ''; }
+function hideError() { $('msg').classList.add('hidden'); }
+
+calc();
+</script>
+</body>
+</html>
