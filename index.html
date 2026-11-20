@@ -3,117 +3,136 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Калькулятор раскроя листа</title>
+<title>Калькулятор раскроя</title>
 <style>
-  :root{
-    --bg:#f4f5f7; --card:#fff; --text:#1d2330; --muted:#6b7280; --line:#e3e6ea;
-    --accent:#2563eb; --sheet:#eef1f5; --part:#3b82f6; --part-stroke:#1e40af; --err:#b91c1c;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
-  .wrap{max-width:1200px;margin:0 auto;padding:24px 16px}
-  h1{font-size:22px;margin:0 0 18px}
-  .grid{display:grid;grid-template-columns:340px 1fr;gap:18px}
-  @media (max-width:860px){.grid{grid-template-columns:1fr}}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
-  .card h2{font-size:15px;margin:0 0 12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-  .group{margin-bottom:18px}
-  .row{display:flex;gap:10px}
-  .row > label{flex:1}
-  label{display:block;font-size:13px;color:var(--muted);margin-bottom:10px}
-  input[type=number]{width:100%;margin-top:4px;padding:9px 10px;font-size:15px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text)}
-  input[type=number]:focus{outline:2px solid var(--accent);border-color:transparent}
-  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:12px}
-  .seg button{flex:1;padding:8px;border:0;background:#fff;font-size:14px;cursor:pointer;color:var(--text)}
-  .seg button.on{background:var(--accent);color:#fff}
-  .check{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text)}
-  .hidden{display:none}
-  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-  .tabs button{padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-size:13px}
-  .tabs button.on{background:var(--text);color:#fff;border-color:var(--text)}
-  .canvas{width:100%;background:#fafbfc;border:1px solid var(--line);border-radius:8px;padding:10px}
-  svg{width:100%;height:auto;display:block;max-height:560px}
-  .msg{color:var(--err);font-weight:600;padding:10px 0}
-  .totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:18px}
-  .tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
-  .tile .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-  .tile .v{font-size:22px;font-weight:700;margin-top:4px}
-  .tile .s{font-size:13px;color:var(--muted);margin-top:4px}
-  .tile.main{border-color:var(--accent)}
-  .note{font-size:12px;color:var(--muted);margin-top:10px}
+:root{--bg:#f4f5f7;--card:#fff;--text:#1d2330;--muted:#6b7280;--line:#e3e6ea;--accent:#2563eb;--sheet:#eef1f5;--err:#b91c1c}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:1200px;margin:0 auto;padding:24px 16px}
+h1{font-size:22px;margin:0 0 18px}
+.grid{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+.card h2{font-size:14px;margin:0 0 12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.cardhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.cardhead b{font-size:16px}
+.group{margin-bottom:20px}
+.row{display:flex;gap:10px}
+.row>label{flex:1}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:10px}
+input[type=number]{width:100%;margin-top:4px;padding:9px 10px;font-size:15px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--text)}
+input[type=number]:focus{outline:2px solid var(--accent);border-color:transparent}
+.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.seg button{flex:1;padding:8px;border:0;background:#fff;font-size:14px;cursor:pointer;color:var(--text)}
+.seg button.on{background:var(--accent);color:#fff}
+.btn{padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:var(--text)}
+.btn:hover{background:#f3f4f6}
+.btn.add{width:100%;padding:10px;border-style:dashed;font-size:14px;color:var(--accent)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{padding:4px 9px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-size:12px;color:var(--text)}
+.chip.on{background:var(--text);color:#fff;border-color:var(--text)}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text)}
+.hidden{display:none!important}
+.partcard{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:#fcfcfd}
+.parthead{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.parthead b{flex:1;font-size:14px}
+.swatch{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.x{border:0;background:none;font-size:20px;line-height:1;cursor:pointer;color:var(--muted)}
+.qtylab{color:#92400e;font-weight:600;margin-bottom:0}
+.badge{font-size:11px;font-weight:600;background:#fde68a;color:#92400e;border-radius:6px;padding:1px 6px;margin-left:4px}
+input.qty{background:#fef3c7;border:2px solid #f59e0b;font-weight:700}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tabs button{padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-size:13px}
+.tabs button.on{background:var(--text);color:#fff;border-color:var(--text)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin-bottom:10px}
+.canvas{width:100%;background:#fafbfc;border:1px solid var(--line);border-radius:8px;padding:10px}
+svg{width:100%;height:auto;display:block;max-height:560px}
+.msg{padding:10px 0;font-weight:600}
+.msg.err{color:var(--err)}
+.msg.hint{color:var(--muted);font-weight:500}
+.totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:18px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.tile .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.tile .v{font-size:22px;font-weight:700;margin-top:4px}
+.tile .s{font-size:13px;color:var(--muted);margin-top:4px}
+.tile.main{border-color:var(--accent)}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+.tablewrap{overflow-x:auto;margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+tr.sum td{font-weight:700;background:#f8fafc}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Калькулятор материала (раскрой листа)</h1>
-
+  <h1>Калькулятор материала (раскрой)</h1>
   <div class="grid">
-    <!-- ===== Ввод ===== -->
+
+    <!-- ===== ВВОД ===== -->
     <div class="card">
-      <div class="group">
-        <h2>Лист, мм</h2>
-        <div class="row">
-          <label>Длина<input type="number" id="sheetL" value="2500" min="0" step="any"></label>
-          <label>Ширина<input type="number" id="sheetW" value="1250" min="0" step="any"></label>
-        </div>
-        <label>Отступ от края листа<input type="number" id="edge" value="0" min="0" step="any"></label>
-      </div>
+      <div class="cardhead"><b>Данные</b><button class="btn" id="clearBtn" type="button">Очистить данные</button></div>
 
       <div class="group">
-        <h2>Деталь, мм</h2>
+        <h2>Материал, мм</h2>
         <div class="seg">
-          <button id="btnRect" class="on" type="button">Прямоугольник</button>
-          <button id="btnCircle" type="button">Круг</button>
+          <button id="btnSheet" class="on" type="button">Лист</button>
+          <button id="btnRoll" type="button">Рулон (м.п.)</button>
         </div>
-        <div id="rectFields">
-          <div class="row">
-            <label>Длина<input type="number" id="partL" value="300" min="0" step="any"></label>
-            <label>Ширина<input type="number" id="partW" value="300" min="0" step="any"></label>
-          </div>
-          <label class="check"><input type="checkbox" id="rotate" checked> Разрешить поворот на 90°</label>
+        <div id="chips" class="chips"></div>
+        <div class="row">
+          <label id="lblL">Длина<input type="number" id="sheetL" inputmode="decimal" min="0" step="any"></label>
+          <label id="lblW"><span id="lblWt">Ширина</span><input type="number" id="sheetW" inputmode="decimal" min="0" step="any"></label>
         </div>
-        <div id="circleFields" class="hidden">
-          <label>Диаметр<input type="number" id="diam" value="300" min="0" step="any"></label>
-        </div>
+        <label>Отступ от края<input type="number" id="edge" value="0" inputmode="decimal" min="0" step="any"></label>
       </div>
 
       <div class="group">
+        <h2>Детали</h2>
+        <div id="parts"></div>
+        <button class="btn add" id="addPart" type="button">+ Добавить другой размер детали</button>
+      </div>
+
+      <div class="group" style="margin-bottom:0">
         <h2>Раскрой</h2>
-        <label>Технический отступ между деталями<input type="number" id="gap" value="3" min="0" step="any"></label>
-        <label>Количество деталей, шт<input type="number" id="qty" value="50" min="1" step="1"></label>
+        <label>Технический отступ между деталями, мм<input type="number" id="gap" value="3" inputmode="decimal" min="0" step="any"></label>
+        <label class="check"><input type="checkbox" id="rotate" checked> Разрешить поворот прямоугольников на 90°</label>
       </div>
     </div>
 
-    <!-- ===== Картинка ===== -->
+    <!-- ===== КАРТИНКА ===== -->
     <div class="card">
-      <h2>Раскладка на листе</h2>
+      <h2>Раскладка</h2>
       <div class="tabs" id="tabs"></div>
-      <div class="canvas"><div id="msg" class="msg hidden"></div><svg id="svg"></svg></div>
+      <div class="legend" id="legend"></div>
+      <div class="canvas"><div id="msg" class="msg hint"></div><svg id="svg"></svg></div>
       <div class="note" id="layoutNote"></div>
     </div>
   </div>
 
-  <!-- ===== Итог ===== -->
   <div class="totals" id="totals"></div>
+  <div id="tableBox"></div>
 </div>
 
 <script>
 /* =========================================================
-   РАСЧЁТ
-   Все размеры внутри переводятся в целые микрометры (мм × 1000),
-   чтобы деление и округление вниз были точными, без ошибок
-   плавающей точки (например, 0.1 + 0.2).
+   Все размеры внутри считаются в целых микрометрах (мм × 1000),
+   чтобы не было ошибок округления дробных чисел.
    ========================================================= */
 const U = 1000;
 const toU = v => Math.round(v * U);
 
-/* Сколько деталей w×h помещается в область W×L с зазором g (по осям). */
+/* Стандартные размеры листов (длина × ширина, мм). Список можно менять. */
+const SIZES = [[1500, 2200], [1500, 1000], [2500, 2500]];
+const COLORS = ['#3b82f6', '#f97316', '#10b981', '#a855f7', '#ef4444', '#eab308', '#14b8a6', '#ec4899'];
+const MAXDRAW = 6000; // максимум фигур на одной картинке
+
+/* ---------- Раскладка одного вида деталей на листе ---------- */
 function gridCount(W, L, w, h, g) {
   if (w > W || h > L || w <= 0 || h <= 0) return [0, 0];
   return [Math.floor((W - w) / (w + g)) + 1, Math.floor((L - h) / (h + g)) + 1];
 }
-
-/* Разложить сеткой и вернуть координаты. limitCols/limitRows — необязательные ограничения. */
 function gridPlace(x0, y0, W, L, w, h, g, out, limitCols, limitRows) {
   let [c, r] = gridCount(W, L, w, h, g);
   if (limitCols !== undefined) c = Math.min(c, limitCols);
@@ -123,8 +142,6 @@ function gridPlace(x0, y0, W, L, w, h, g, out, limitCols, limitRows) {
       out.push({ x: x0 + j * (w + g), y: y0 + i * (h + g), w, h });
   return c * r;
 }
-
-/* Лучшее заполнение области одной ориентацией (из доступных). */
 function bestGrid(x0, y0, W, L, orients, g) {
   let best = [];
   for (const [a, b] of orients) {
@@ -134,25 +151,18 @@ function bestGrid(x0, y0, W, L, orients, g) {
   }
   return best;
 }
-
-/* Прямоугольные детали: перебираем сетку в обеих ориентациях
-   и комбинированные схемы (блок в одной ориентации + остаток в другой). */
 function rectLayout(W, L, w, h, g, rotate, x0, y0) {
   const orients = [[w, h]];
   if (rotate && w !== h) orients.push([h, w]);
-
   let best = { parts: [], name: '' };
   const consider = (parts, name) => { if (parts.length > best.parts.length) best = { parts, name }; };
-
   for (const [a, b] of orients) {
     const p = [];
     gridPlace(x0, y0, W, L, a, b, g, p);
     consider(p, 'сетка');
   }
-
   for (const [a, b] of orients) {
     const [maxC, maxR] = gridCount(W, L, a, b, g);
-    // Вертикальное деление: k столбцов слева, остаток справа
     for (let k = 1; k < maxC; k++) {
       const p = [];
       gridPlace(x0, y0, W, L, a, b, g, p, k);
@@ -160,7 +170,6 @@ function rectLayout(W, L, w, h, g, rotate, x0, y0) {
       p.push(...bestGrid(x0 + used, y0, W - used, L, orients, g));
       consider(p, 'комбинированная');
     }
-    // Горизонтальное деление: k рядов сверху, остаток снизу
     for (let k = 1; k < maxR; k++) {
       const p = [];
       gridPlace(x0, y0, W, L, a, b, g, p, undefined, k);
@@ -171,20 +180,13 @@ function rectLayout(W, L, w, h, g, rotate, x0, y0) {
   }
   return best;
 }
-
-/* Круглые детали: квадратная сетка и шахматная (сотовая) укладка в двух направлениях.
-   Шаг между центрами p = D + g, поэтому между кругами всегда ровно ≥ g. */
 function circleLayout(W, L, D, g, x0, y0) {
   const p = D + g;
   let best = { parts: [], name: '' };
   const consider = (parts, name) => { if (parts.length > best.parts.length) best = { parts, name }; };
-
-  // квадратная сетка
   const sq = [];
   gridPlace(x0, y0, W, L, D, D, g, sq);
   consider(sq.map(r => ({ cx: r.x + D / 2, cy: r.y + D / 2, d: D })), 'ряды');
-
-  // шахматная укладка
   const hex = (A, B, swap) => {
     const parts = [];
     if (A < D || B < D) return parts;
@@ -207,124 +209,479 @@ function circleLayout(W, L, D, g, x0, y0) {
   return best;
 }
 
-/* ========================================================= */
-const $ = id => document.getElementById(id);
-let shape = 'rect';
-let view = 'full';
-let lastResult = null;
+/* ---------- Общая раскладка разных деталей на листах (MaxRects) ---------- */
+function packMixed(T, AX, AY, G, E, rot) {
+  const base = [];
+  T.forEach(t => {
+    const w = t.rect ? t.w : t.D, h = t.rect ? t.h : t.D;
+    for (let i = 0; i < t.qty; i++) base.push({ k: t.k, w, h, circle: !t.rect });
+  });
+  const newBin = () => ({ free: [{ x: 0, y: 0, w: AX + G, h: AY + G }], placed: [] });
 
-$('btnRect').onclick = () => setShape('rect');
-$('btnCircle').onclick = () => setShape('circle');
-function setShape(s) {
-  shape = s;
-  $('btnRect').classList.toggle('on', s === 'rect');
-  $('btnCircle').classList.toggle('on', s === 'circle');
-  $('rectFields').classList.toggle('hidden', s !== 'rect');
-  $('circleFields').classList.toggle('hidden', s !== 'circle');
-  calc();
-}
-document.querySelectorAll('input').forEach(i => i.addEventListener('input', calc));
+  const tryBin = (bin, it) => {
+    let best = null;
+    const opts = [[it.w, it.h]];
+    if (rot && !it.circle && it.w !== it.h) opts.push([it.h, it.w]);
+    for (const [w, h] of opts) {
+      const iw = w + G, ih = h + G;
+      for (const f of bin.free) {
+        if (iw <= f.w && ih <= f.h) {
+          const s1 = Math.min(f.w - iw, f.h - ih), s2 = Math.max(f.w - iw, f.h - ih);
+          if (!best || s1 < best.s1 || (s1 === best.s1 && s2 < best.s2))
+            best = { x: f.x, y: f.y, w: iw, h: ih, pw: w, ph: h, s1, s2 };
+        }
+      }
+    }
+    return best;
+  };
+  const commit = (bin, nd, it) => {
+    bin.placed.push(it.circle
+      ? { cx: E + nd.x + nd.pw / 2, cy: E + nd.y + nd.ph / 2, d: nd.pw, k: it.k }
+      : { x: E + nd.x, y: E + nd.y, w: nd.pw, h: nd.ph, k: it.k });
+    const u = nd, out = [];
+    for (const f of bin.free) {
+      if (u.x >= f.x + f.w || u.x + u.w <= f.x || u.y >= f.y + f.h || u.y + u.h <= f.y) { out.push(f); continue; }
+      if (u.x < f.x + f.w && u.x + u.w > f.x) {
+        if (u.y > f.y) out.push({ x: f.x, y: f.y, w: f.w, h: u.y - f.y });
+        if (u.y + u.h < f.y + f.h) out.push({ x: f.x, y: u.y + u.h, w: f.w, h: f.y + f.h - u.y - u.h });
+      }
+      if (u.y < f.y + f.h && u.y + u.h > f.y) {
+        if (u.x > f.x) out.push({ x: f.x, y: f.y, w: u.x - f.x, h: f.h });
+        if (u.x + u.w < f.x + f.w) out.push({ x: u.x + u.w, y: f.y, w: f.x + f.w - u.x - u.w, h: f.h });
+      }
+    }
+    bin.free = out.filter((a, i) => !out.some((b, j) => j !== i &&
+      b.x <= a.x && b.y <= a.y && b.x + b.w >= a.x + a.w && b.y + b.h >= a.y + a.h &&
+      (b.w * b.h > a.w * a.h || j < i)));
+  };
 
-const num = id => { const v = parseFloat(String($(id).value).replace(',', '.')); return isFinite(v) ? v : NaN; };
-const fmt = (v, d = 2) => v.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: d });
-
-function calc() {
-  const sL = num('sheetL'), sW = num('sheetW'), edge = num('edge') || 0, g = num('gap');
-  const qty = Math.floor(num('qty'));
-  const pL = num('partL'), pW = num('partW'), D = num('diam');
-
-  const err = t => { showError(t); $('totals').innerHTML = ''; $('tabs').innerHTML = ''; $('layoutNote').textContent = ''; };
-
-  if (!(sL > 0 && sW > 0)) return err('Укажите размеры листа');
-  if (!(g >= 0)) return err('Технический отступ не может быть отрицательным');
-  if (edge < 0) return err('Отступ от края не может быть отрицательным');
-  if (!(qty >= 1)) return err('Укажите количество деталей');
-  if (shape === 'rect' && !(pL > 0 && pW > 0)) return err('Укажите размеры детали');
-  if (shape === 'circle' && !(D > 0)) return err('Укажите диаметр детали');
-
-  const SX = toU(sL), SY = toU(sW), E = toU(edge), G = toU(g);
-  const AX = SX - 2 * E, AY = SY - 2 * E; // рабочая область
-  if (AX <= 0 || AY <= 0) return err('Отступ от края больше половины листа');
-
-  const res = shape === 'rect'
-    ? rectLayout(AX, AY, toU(pL), toU(pW), G, $('rotate').checked, E, E)
-    : circleLayout(AX, AY, toU(D), G, E, E);
-
-  const perSheet = res.parts.length;
-  if (perSheet === 0) return err('Деталь не помещается на лист такого размера');
-
-  const sheets = Math.ceil(qty / perSheet);
-  const lastCount = qty - (sheets - 1) * perSheet;
-
-  // площади в мм² (из округлённых до 0,001 мм значений)
-  const sheetArea = (SX / U) * (SY / U);
-  const partArea = shape === 'rect' ? (toU(pL) / U) * (toU(pW) / U) : Math.PI * Math.pow(toU(D) / U, 2) / 4;
-  const totalArea = sheetArea * sheets;
-  const usedArea = partArea * qty;
-  const waste = totalArea - usedArea;
-
-  lastResult = { res, perSheet, sheets, lastCount, SX, SY, E };
-  if (sheets === 1 || lastCount === perSheet) view = 'full';
-  hideError();
-  renderTabs();
-  draw();
-
-  $('layoutNote').textContent =
-    `Схема: ${res.name}. На полном листе ${perSheet} шт.` +
-    (sheets > 1 && lastCount !== perSheet ? ` На последнем листе ${lastCount} шт.` : '');
-
-  $('totals').innerHTML = `
-    <div class="tile main"><div class="k">Нужно листов</div><div class="v">${sheets} шт</div>
-      <div class="s">Лист ${fmt(sL)} × ${fmt(sW)} мм</div></div>
-    <div class="tile"><div class="k">Деталей на листе</div><div class="v">${perSheet} шт</div>
-      <div class="s">${sheets > 1 ? `${sheets - 1} полн. + последний: ${lastCount} шт` : `заказано: ${qty} шт`}</div></div>
-    <div class="tile main"><div class="k">Площадь листов</div><div class="v">${fmt(totalArea / 1e6, 4)} м²</div>
-      <div class="s">${fmt(totalArea / 100, 2)} см² · ${fmt(totalArea, 2)} мм²</div></div>
-    <div class="tile"><div class="k">Площадь деталей</div><div class="v">${fmt(usedArea / 1e6, 4)} м²</div>
-      <div class="s">${fmt(usedArea / 100, 2)} см² · ${qty} шт</div></div>
-    <div class="tile"><div class="k">Отход</div><div class="v">${fmt(waste / 1e6, 4)} м²</div>
-      <div class="s">${fmt(waste / 100, 2)} см² · использование ${fmt(usedArea / totalArea * 100, 1)}%</div></div>`;
-}
-
-function renderTabs() {
-  const { sheets, perSheet, lastCount } = lastResult;
-  const t = $('tabs');
-  if (sheets === 1 || lastCount === perSheet) {
-    t.innerHTML = `<button class="on" type="button">${sheets === 1 ? 'Лист' : `Листы 1–${sheets}`} · ${sheets === 1 ? lastCount : perSheet} шт</button>`;
-    return;
+  const sorts = [
+    (a, b) => b.w * b.h - a.w * a.h,
+    (a, b) => Math.max(b.w, b.h) - Math.max(a.w, a.h) || b.w * b.h - a.w * a.h,
+    (a, b) => b.h - a.h || b.w - a.w
+  ];
+  let best = null;
+  for (const s of sorts) {
+    const items = base.slice().sort(s), bins = [];
+    let ok = true;
+    for (const it of items) {
+      let placed = false;
+      for (const b of bins) { const nd = tryBin(b, it); if (nd) { commit(b, nd, it); placed = true; break; } }
+      if (!placed) {
+        const b = newBin(), nd = tryBin(b, it);
+        if (!nd) { ok = false; break; }
+        commit(b, nd, it); bins.push(b);
+      }
+    }
+    if (ok && (!best || bins.length < best.length)) best = bins;
   }
-  t.innerHTML = `
-    <button type="button" data-v="full" class="${view === 'full' ? 'on' : ''}">${sheets - 1 === 1 ? 'Лист 1' : `Листы 1–${sheets - 1}`} · ${perSheet} шт</button>
-    <button type="button" data-v="last" class="${view === 'last' ? 'on' : ''}">Лист ${sheets} · ${lastCount} шт</button>`;
-  t.querySelectorAll('button').forEach(b => b.onclick = () => { view = b.dataset.v; renderTabs(); draw(); });
+  return best ? best.map(b => b.placed) : null;
 }
+
+/* ---------- Рулон: ширина фиксирована, считаем длину ---------- */
+function rollRect(AW, w, h, n, G, rot) {
+  const opts = [[w, h]];
+  if (rot && w !== h) opts.push([h, w]);
+  let best = null;
+  for (const [a, b] of opts) {
+    if (a > AW) continue;
+    const c = Math.floor((AW - a) / (a + G)) + 1;
+    const rows = Math.ceil(n / c);
+    const len = rows * b + (rows - 1) * G;
+    if (!best || len < best.len) {
+      best = { len, cols: String(c), name: 'ряды', gen: (x0, y0) => {
+        const out = [];
+        for (let i = 0; i < n; i++) {
+          const row = Math.floor(i / c), col = i % c;
+          out.push({ x: x0 + col * (a + G), y: y0 + row * (b + G), w: a, h: b });
+        }
+        return out;
+      } };
+    }
+  }
+  return best;
+}
+function rollCircle(AW, D, n, G) {
+  if (D > AW) return null;
+  const p = D + G, dy = p * Math.sqrt(3) / 2;
+  const c0 = Math.floor((AW - D) / p + 1e-9) + 1;
+  const c1 = AW >= D + p / 2 ? Math.floor((AW - D - p / 2) / p + 1e-9) + 1 : 0;
+  const rowsSq = Math.ceil(n / c0);
+  const lenSq = D + (rowsSq - 1) * p;
+  let r = 1;
+  const cap = k => Math.ceil(k / 2) * c0 + Math.floor(k / 2) * c1;
+  while (cap(r) < n) r++;
+  const lenHex = D + (r - 1) * dy;
+  if (c1 > 0 && lenHex < lenSq) {
+    return { len: lenHex, cols: c0 === c1 ? String(c0) : `${c0}/${c1}`, name: 'шахматная', gen: (x0, y0) => {
+      const out = [];
+      let left = n;
+      for (let i = 0; left > 0; i++) {
+        const off = i % 2 ? p / 2 : 0, cnt = i % 2 ? c1 : c0;
+        for (let j = 0; j < cnt && left > 0; j++, left--)
+          out.push({ cx: x0 + D / 2 + off + j * p, cy: y0 + D / 2 + i * dy, d: D });
+      }
+      return out;
+    } };
+  }
+  return { len: lenSq, cols: String(c0), name: 'ряды', gen: (x0, y0) => {
+    const out = [];
+    for (let i = 0; i < n; i++) {
+      const row = Math.floor(i / c0), col = i % c0;
+      out.push({ cx: x0 + D / 2 + col * p, cy: y0 + D / 2 + row * p, d: D });
+    }
+    return out;
+  } };
+}
+/* в рулоне считаем по осям (поперёк, вдоль); для рисунка меняем местами, чтобы рулон лежал горизонтально */
+const tr = p => p.d !== undefined
+  ? { cx: p.cy, cy: p.cx, d: p.d, k: p.k }
+  : { x: p.y, y: p.x, w: p.h, h: p.w, k: p.k };
+
+/* =========================================================
+   Интерфейс
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const num = id => { const v = parseFloat(String($(id).value).replace(',', '.')); return isFinite(v) ? v : NaN; };
+const pf = s => parseFloat(String(s).replace(',', '.'));
+const fmt = (v, d = 2) => v.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: d });
+const tile = (k, v, s, main) => `<div class="tile${main ? ' main' : ''}"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+
+let mode = 'sheet';
+let nextId = 1;
+let parts = [];
+let lastResult = null;
+let viewIdx = 0;
+
+function newPart(shape = 'rect') {
+  const color = COLORS.find(c => !parts.some(p => p.color === c)) || COLORS[parts.length % COLORS.length];
+  return { id: nextId++, shape, l: '', w: '', d: '', qty: '', color };
+}
+
+/* --- стандартные размеры --- */
+function renderChips() {
+  const L = $('sheetL').value, W = $('sheetW').value;
+  $('chips').innerHTML = SIZES.map(([a, b]) =>
+    `<button type="button" class="chip ${(+L === a && +W === b) ? 'on' : ''}" data-a="${a}" data-b="${b}">${a} × ${b}</button>`).join('');
+}
+$('chips').addEventListener('click', e => {
+  const b = e.target.closest('.chip'); if (!b) return;
+  $('sheetL').value = b.dataset.a; $('sheetW').value = b.dataset.b; calc();
+});
+
+/* --- режим лист / рулон --- */
+function setMode(m) {
+  mode = m;
+  $('btnSheet').classList.toggle('on', m === 'sheet');
+  $('btnRoll').classList.toggle('on', m === 'roll');
+  $('lblL').classList.toggle('hidden', m === 'roll');
+  $('chips').classList.toggle('hidden', m === 'roll');
+  $('lblWt').textContent = m === 'roll' ? 'Ширина рулона' : 'Ширина';
+  viewIdx = 0; calc();
+}
+$('btnSheet').onclick = () => setMode('sheet');
+$('btnRoll').onclick = () => setMode('roll');
+
+/* --- карточки деталей --- */
+function renderParts() {
+  $('parts').innerHTML = parts.map((p, i) => `
+    <div class="partcard" data-id="${p.id}">
+      <div class="parthead"><span class="swatch" style="background:${p.color}"></span><b>Деталь ${i + 1}</b>
+        ${parts.length > 1 ? '<button type="button" class="x" data-act="del" title="Удалить">×</button>' : ''}</div>
+      <div class="seg">
+        <button type="button" data-act="shape" data-v="rect" class="${p.shape === 'rect' ? 'on' : ''}">Прямоугольник</button>
+        <button type="button" data-act="shape" data-v="circle" class="${p.shape === 'circle' ? 'on' : ''}">Круг</button>
+      </div>
+      ${p.shape === 'rect'
+        ? `<div class="row">
+             <label>Длина, мм<input type="number" inputmode="decimal" min="0" step="any" data-f="l" value="${p.l}"></label>
+             <label>Ширина, мм<input type="number" inputmode="decimal" min="0" step="any" data-f="w" value="${p.w}"></label>
+           </div>`
+        : `<label>Диаметр, мм<input type="number" inputmode="decimal" min="0" step="any" data-f="d" value="${p.d}"></label>`}
+      <label class="qtylab">Количество, шт <span class="badge">не забудьте изменить</span>
+        <input type="number" class="qty" inputmode="numeric" min="1" step="1" data-f="qty" value="${p.qty}"></label>
+    </div>`).join('');
+}
+$('parts').addEventListener('input', e => {
+  const f = e.target.dataset.f; if (!f) return;
+  const id = +e.target.closest('.partcard').dataset.id;
+  parts.find(p => p.id === id)[f] = e.target.value;
+  calc();
+});
+$('parts').addEventListener('click', e => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const id = +b.closest('.partcard').dataset.id;
+  const i = parts.findIndex(p => p.id === id);
+  if (b.dataset.act === 'del') parts.splice(i, 1);
+  else parts[i].shape = b.dataset.v;
+  renderParts(); calc();
+});
+$('addPart').onclick = () => {
+  parts.push(newPart()); renderParts(); calc();
+  const last = $('parts').querySelector('.partcard:last-child input');
+  if (last) last.focus();
+};
+
+/* --- очистить: размер листа, размеры и количество деталей; остальное остаётся --- */
+$('clearBtn').onclick = () => {
+  $('sheetL').value = ''; $('sheetW').value = '';
+  const shape = parts[0] ? parts[0].shape : 'rect';
+  parts = []; parts.push(newPart(shape));
+  viewIdx = 0; renderParts(); calc();
+};
+
+['sheetL', 'sheetW', 'edge', 'gap', 'rotate'].forEach(id => {
+  $(id).addEventListener('input', calc);
+  $(id).addEventListener('change', calc);
+});
+
+/* --- сообщения --- */
+function showMsg(t, isErr) {
+  $('msg').textContent = t; $('msg').className = 'msg ' + (isErr ? 'err' : 'hint');
+  $('svg').innerHTML = ''; $('totals').innerHTML = ''; $('tableBox').innerHTML = '';
+  $('tabs').innerHTML = ''; $('layoutNote').textContent = ''; $('legend').innerHTML = '';
+  lastResult = null;
+}
+
+/* =========================================================
+   Главный расчёт
+   ========================================================= */
+function calc() {
+  renderChips();
+  const roll = mode === 'roll';
+
+  // материал
+  const need = roll ? ['sheetW'] : ['sheetL', 'sheetW'];
+  for (const id of need) {
+    if ($(id).value !== '' && !(num(id) > 0)) return showMsg('Размеры материала должны быть больше нуля', true);
+  }
+  const sheetMissing = need.some(id => $(id).value === '');
+  const edge = $('edge').value === '' ? 0 : num('edge');
+  const g = $('gap').value === '' ? NaN : num('gap');
+  if (edge < 0) return showMsg('Отступ от края не может быть отрицательным', true);
+  if (g < 0) return showMsg('Технический отступ не может быть отрицательным', true);
+
+  // детали
+  const act = []; let hintText = null;
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i];
+    const raw = p.shape === 'rect' ? [p.l, p.w] : [p.d];
+    if (raw.every(v => v === '') && p.qty === '') continue;
+    const sizes = raw.map(pf), q = pf(p.qty);
+    if (sizes.some(v => isFinite(v) && v <= 0)) return showMsg(`Деталь ${i + 1}: размеры должны быть больше нуля`, true);
+    if (isFinite(q) && (q < 1 || !Number.isInteger(q))) return showMsg(`Деталь ${i + 1}: количество — целое число от 1`, true);
+    if (sizes.some(v => !isFinite(v)) || !isFinite(q)) { hintText = hintText || `Деталь ${i + 1}: заполните размер и количество`; continue; }
+    act.push({ shape: p.shape, sizes, q, color: p.color, index: i });
+  }
+
+  if (sheetMissing && !act.length && !hintText) return showMsg('Введите размеры материала и деталей — здесь появится раскладка', false);
+  if (sheetMissing) return showMsg(roll ? 'Введите ширину рулона' : 'Введите длину и ширину листа', false);
+  if (hintText) return showMsg(hintText, false);
+  if (!act.length) return showMsg('Введите размер детали и количество — здесь появится раскладка', false);
+  if (isNaN(g)) return showMsg('Введите технический отступ (0 — если не нужен)', false);
+
+  const sL = roll ? 0 : num('sheetL'), sW = num('sheetW');
+  const SX = toU(sL), SY = toU(sW), E = toU(edge), G = toU(g);
+  const rot = $('rotate').checked;
+
+  const T = act.map((a, k) => {
+    const rect = a.shape === 'rect';
+    const w = rect ? toU(a.sizes[0]) : 0, h = rect ? toU(a.sizes[1]) : 0, D = rect ? 0 : toU(a.sizes[0]);
+    return {
+      k, rect, w, h, D, qty: a.q, color: a.color, name: 'Деталь ' + (a.index + 1),
+      size: rect ? `${fmt(a.sizes[0], 3)} × ${fmt(a.sizes[1], 3)} мм` : `Ø ${fmt(a.sizes[0], 3)} мм`,
+      area: rect ? (w / U) * (h / U) : Math.PI * Math.pow(D / U, 2) / 4
+    };
+  });
+
+  $('msg').className = 'msg hidden';
+  if (roll) calcRoll(T, SY, E, G, rot, sW);
+  else calcSheet(T, SX, SY, E, G, rot, sL, sW);
+}
+
+/* ---------- ЛИСТ ---------- */
+function calcSheet(T, SX, SY, E, G, rot, sL, sW) {
+  const AX = SX - 2 * E, AY = SY - 2 * E;
+  if (AX <= 0 || AY <= 0) return showMsg('Отступ от края больше половины листа', true);
+  const sheetArea = (SX / U) * (SY / U);
+  const multi = T.length > 1;
+
+  const per = [];
+  for (const t of T) {
+    const res = t.rect ? rectLayout(AX, AY, t.w, t.h, G, rot, E, E) : circleLayout(AX, AY, t.D, G, E, E);
+    if (!res.parts.length) return showMsg(`${t.name} не помещается на лист такого размера`, true);
+    const perSheet = res.parts.length;
+    const sheets = Math.ceil(t.qty / perSheet);
+    per.push({ t, res, perSheet, sheets, last: t.qty - (sheets - 1) * perSheet });
+  }
+
+  // каждый вид на своих листах
+  let groups = [];
+  per.forEach(r => {
+    const tag = ps => ps.map(p => ({ ...p, k: r.t.k }));
+    const pre = multi ? r.t.name + ': ' : '';
+    const fullN = r.last === r.perSheet ? r.sheets : r.sheets - 1;
+    if (fullN > 0) groups.push({
+      parts: tag(r.res.parts), repeat: fullN,
+      label: pre + (r.sheets === 1 ? 'лист' : fullN === 1 ? 'полный лист' : `полные листы ×${fullN}`) + ` · ${r.perSheet} шт`
+    });
+    if (r.last < r.perSheet) groups.push({
+      parts: tag(r.res.parts.slice(0, r.last)), repeat: 1,
+      label: pre + (r.sheets === 1 ? 'лист' : 'последний лист') + ` · ${r.last} шт`
+    });
+  });
+  const sumSep = per.reduce((s, r) => s + r.sheets, 0);
+
+  // все виды вместе на общих листах
+  let total = sumSep, together = false;
+  if (multi && T.reduce((s, t) => s + t.qty, 0) <= 1500) {
+    const mixed = packMixed(T, AX, AY, G, E, rot);
+    if (mixed && mixed.length < sumSep) {
+      total = mixed.length; together = true;
+      groups = mixed.map((ps, i) => ({ parts: ps, repeat: 1, label: `Лист ${i + 1} · ${ps.length} шт` }));
+    }
+  }
+
+  const totalArea = sheetArea * total;
+  const partsArea = T.reduce((s, t) => s + t.area * t.qty, 0);
+  const waste = totalArea - partsArea;
+  const sepArea = sheetArea * sumSep;
+
+  let html = tile('Нужно листов', `${total} шт`,
+    multi ? (together ? 'все виды вместе, на общих листах' : 'каждый вид на своих листах') : `лист ${fmt(sL, 3)} × ${fmt(sW, 3)} мм`, true);
+  if (!multi) {
+    const r = per[0];
+    html += tile('Деталей на листе', `${r.perSheet} шт`, r.sheets > 1 && r.last !== r.perSheet ? `${r.sheets - 1} полн. + последний: ${r.last} шт` : `заказано: ${r.t.qty} шт`);
+  } else {
+    html += tile('Если резать отдельно', `${sumSep} шт`, `${fmt(sepArea / 1e6, 4)} м² · ${fmt(sepArea / 100, 2)} см²`);
+  }
+  html += tile('Площадь листов', `${fmt(totalArea / 1e6, 4)} м²`, `${fmt(totalArea / 100, 2)} см² · ${fmt(totalArea, 2)} мм²`, true);
+  html += tile('Площадь деталей', `${fmt(partsArea / 1e6, 4)} м²`, `${fmt(partsArea / 100, 2)} см² · ${T.reduce((s, t) => s + t.qty, 0)} шт`);
+  html += tile('Отход', `${fmt(waste / 1e6, 4)} м²`, `${fmt(waste / 100, 2)} см² · использование ${fmt(partsArea / totalArea * 100, 1)}%`);
+  $('totals').innerHTML = html;
+
+  // таблица по видам
+  if (multi) {
+    const rows = per.map(r => `<tr>
+      <td><span class="swatch" style="background:${r.t.color}"></span>${r.t.name}</td><td>${r.t.size}</td><td>${r.t.qty}</td>
+      <td>${r.perSheet}</td><td>${r.sheets}</td><td>${fmt(r.sheets * sheetArea / 1e6, 4)}</td>
+      <td>${fmt(r.t.area * r.t.qty / 1e6, 4)}</td></tr>`).join('');
+    $('tableBox').innerHTML = `<div class="tablewrap"><table>
+      <tr><th>Деталь</th><th>Размер</th><th>Шт</th><th>На листе</th><th>Листов отдельно</th><th>Площадь листов отдельно, м²</th><th>Площадь деталей, м²</th></tr>
+      ${rows}
+      <tr class="sum"><td>Итого отдельно</td><td></td><td>${T.reduce((s, t) => s + t.qty, 0)}</td><td></td><td>${sumSep}</td><td>${fmt(sepArea / 1e6, 4)}</td><td>${fmt(partsArea / 1e6, 4)}</td></tr>
+      <tr class="sum"><td>Итого вместе</td><td></td><td></td><td></td><td>${total}</td><td>${fmt(totalArea / 1e6, 4)}</td><td></td></tr>
+    </table></div>`;
+  } else $('tableBox').innerHTML = '';
+
+  $('layoutNote').textContent = multi
+    ? (together ? 'Детали разных видов размещены на общих листах (в общей раскладке круг занимает квадратную ячейку).'
+                : 'Общая раскладка не дала экономии листов, поэтому показан раскрой каждого вида отдельно.')
+    : `Схема: ${per[0].res.name}.`;
+
+  lastResult = { groups, drawW: SX, drawH: SY, E, T, roll: false };
+  finishRender();
+}
+
+/* ---------- РУЛОН ---------- */
+function calcRoll(T, SY, E, G, rot, sW) {
+  const AW = SY - 2 * E;
+  if (AW <= 0) return showMsg('Отступ от края больше половины ширины рулона', true);
+  const multi = T.length > 1;
+  let y = E; const all = []; const infos = [];
+
+  for (let i = 0; i < T.length; i++) {
+    const t = T[i];
+    const r = t.rect ? rollRect(AW, t.w, t.h, t.qty, G, rot) : rollCircle(AW, t.D, t.qty, G);
+    if (!r) return showMsg(`${t.name} не помещается по ширине рулона`, true);
+    r.gen(E, y).forEach(p => all.push(tr({ ...p, k: t.k })));
+    infos.push({ t, len: r.len, cols: r.cols, name: r.name });
+    y += r.len + (i < T.length - 1 ? G : 0);
+  }
+  const totalLen = y + E;                       // µм
+  const rollArea = (SY / U) * (totalLen / U);   // мм²
+  const partsArea = T.reduce((s, t) => s + t.area * t.qty, 0);
+  const waste = rollArea - partsArea;
+  const mp = totalLen / U / 1000;
+  const sumLen = infos.reduce((s, r) => s + r.len, 0);
+
+  $('totals').innerHTML =
+    tile('Нужно погонных метров', `${fmt(mp, 3)} м.п.`, `${fmt(totalLen / U, 1)} мм · ширина рулона ${fmt(sW, 3)} мм`, true) +
+    tile('Площадь рулона', `${fmt(rollArea / 1e6, 4)} м²`, `${fmt(rollArea / 100, 2)} см² · ${fmt(rollArea, 2)} мм²`, true) +
+    tile('Площадь деталей', `${fmt(partsArea / 1e6, 4)} м²`, `${fmt(partsArea / 100, 2)} см² · ${T.reduce((s, t) => s + t.qty, 0)} шт`) +
+    tile('Отход', `${fmt(waste / 1e6, 4)} м²`, `${fmt(waste / 100, 2)} см² · использование ${fmt(partsArea / rollArea * 100, 1)}%`);
+
+  if (multi) {
+    const rows = infos.map(r => `<tr>
+      <td><span class="swatch" style="background:${r.t.color}"></span>${r.t.name}</td><td>${r.t.size}</td><td>${r.t.qty}</td>
+      <td>${r.cols}</td><td>${fmt(r.len / U / 1000, 3)}</td><td>${fmt((SY / U) * (r.len / U) / 1e6, 4)}</td>
+      <td>${fmt(r.t.area * r.t.qty / 1e6, 4)}</td></tr>`).join('');
+    $('tableBox').innerHTML = `<div class="tablewrap"><table>
+      <tr><th>Деталь</th><th>Размер</th><th>Шт</th><th>В ряду</th><th>Длина полосы, м.п.</th><th>Площадь рулона, м²</th><th>Площадь деталей, м²</th></tr>
+      ${rows}
+      <tr class="sum"><td>Отступы (между полосами и по краям)</td><td></td><td></td><td></td><td>${fmt((totalLen - sumLen) / U / 1000, 3)}</td><td></td><td></td></tr>
+      <tr class="sum"><td>Итого вместе</td><td></td><td>${T.reduce((s, t) => s + t.qty, 0)}</td><td></td><td>${fmt(mp, 3)}</td><td>${fmt(rollArea / 1e6, 4)}</td><td>${fmt(partsArea / 1e6, 4)}</td></tr>
+    </table></div>`;
+  } else $('tableBox').innerHTML = '';
+
+  $('layoutNote').textContent = 'Рулон показан горизонтально. ' +
+    (multi ? 'Каждый вид идёт своей полосой по длине рулона.' : `Схема: ${infos[0].name}, деталей в ряду: ${infos[0].cols}.`);
+
+  lastResult = { groups: [{ parts: all, repeat: 1, label: 'Рулон' }], drawW: totalLen, drawH: SY, E, T, roll: true };
+  finishRender();
+}
+
+/* ---------- отрисовка ---------- */
+function finishRender() {
+  if (viewIdx >= lastResult.groups.length) viewIdx = 0;
+  const T = lastResult.T;
+  $('legend').innerHTML = T.length > 1
+    ? T.map(t => `<span><span class="swatch" style="background:${t.color}"></span>${t.name}: ${t.size}</span>`).join('') : '';
+  renderTabs(); draw();
+}
+function renderTabs() {
+  const { groups } = lastResult, t = $('tabs');
+  if (groups.length <= 1) { t.innerHTML = ''; return; }
+  t.innerHTML = groups.map((g, i) => `<button type="button" data-i="${i}" class="${i === viewIdx ? 'on' : ''}">${g.label}</button>`).join('');
+}
+$('tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || !lastResult) return;
+  viewIdx = +b.dataset.i; renderTabs(); draw();
+});
 
 function draw() {
-  const { res, perSheet, sheets, lastCount, SX, SY, E } = lastResult;
-  const count = (view === 'last' || sheets === 1) ? lastCount : perSheet;
-  const W = SX / U, H = SY / U, pad = Math.max(W, H) * 0.07;
-  const fs = Math.max(W, H) * 0.028;
-  let s = `<rect x="0" y="0" width="${W}" height="${H}" fill="var(--sheet)" stroke="#94a3b8" stroke-width="${fs * 0.12}"/>`;
-  if (E > 0) s += `<rect x="${E / U}" y="${E / U}" width="${(SX - 2 * E) / U}" height="${(SY - 2 * E) / U}" fill="none" stroke="#cbd5e1" stroke-dasharray="${fs * 0.5}" stroke-width="${fs * 0.08}"/>`;
-  res.parts.slice(0, count).forEach((p, i) => {
-    if (p.d !== undefined) {
-      s += `<circle cx="${p.cx / U}" cy="${p.cy / U}" r="${p.d / U / 2}" fill="var(--part)" fill-opacity=".75" stroke="var(--part-stroke)" stroke-width="${fs * 0.06}"/>`;
-    } else {
-      s += `<rect x="${p.x / U}" y="${p.y / U}" width="${p.w / U}" height="${p.h / U}" fill="var(--part)" fill-opacity=".75" stroke="var(--part-stroke)" stroke-width="${fs * 0.06}"/>`;
-    }
-  });
-  // размеры листа
-  s += `<text x="${W / 2}" y="${-pad * 0.35}" font-size="${fs}" text-anchor="middle" fill="#475569">${fmt(W)} мм</text>`;
-  s += `<text x="${-pad * 0.35}" y="${H / 2}" font-size="${fs}" text-anchor="middle" fill="#475569" transform="rotate(-90 ${-pad * 0.35} ${H / 2})">${fmt(H)} мм</text>`;
+  const R = lastResult, g = R.groups[viewIdx] || R.groups[0];
+  const W = R.drawW / U, H = R.drawH / U;
+  const base = Math.max(W, H), pad = base * 0.07;
+  const fs = Math.min(base * 0.028, H * 0.06);
+  const sw = fs * 0.06;
+  const s = [];
+  s.push(`<rect x="0" y="0" width="${W}" height="${H}" fill="#eef1f5" stroke="#94a3b8" stroke-width="${fs * 0.12}"/>`);
+  if (R.E > 0) {
+    const e = R.E / U;
+    s.push(`<rect x="${e}" y="${e}" width="${W - 2 * e}" height="${H - 2 * e}" fill="none" stroke="#cbd5e1" stroke-dasharray="${fs * 0.5}" stroke-width="${fs * 0.08}"/>`);
+  }
+  const shown = g.parts.length > MAXDRAW ? g.parts.slice(0, MAXDRAW) : g.parts;
+  for (const p of shown) {
+    const col = R.T[p.k].color;
+    if (p.d !== undefined)
+      s.push(`<circle cx="${p.cx / U}" cy="${p.cy / U}" r="${p.d / U / 2}" fill="${col}" fill-opacity=".75" stroke="rgba(15,23,42,.45)" stroke-width="${sw}"/>`);
+    else
+      s.push(`<rect x="${p.x / U}" y="${p.y / U}" width="${p.w / U}" height="${p.h / U}" fill="${col}" fill-opacity=".75" stroke="rgba(15,23,42,.45)" stroke-width="${sw}"/>`);
+  }
+  const topLabel = R.roll ? `${fmt(W / 1000, 3)} м.п.` : `${fmt(W, 3)} мм`;
+  s.push(`<text x="${W / 2}" y="${-pad * 0.35}" font-size="${fs}" text-anchor="middle" fill="#475569">${topLabel}</text>`);
+  s.push(`<text x="${-pad * 0.35}" y="${H / 2}" font-size="${fs}" text-anchor="middle" fill="#475569" transform="rotate(-90 ${-pad * 0.35} ${H / 2})">${fmt(H, 3)} мм</text>`);
   const svg = $('svg');
   svg.setAttribute('viewBox', `${-pad} ${-pad} ${W + pad * 1.4} ${H + pad * 1.4}`);
-  svg.innerHTML = s;
+  svg.innerHTML = s.join('');
+  if (g.parts.length > MAXDRAW) $('layoutNote').textContent += ` На рисунке показаны первые ${MAXDRAW} деталей из ${g.parts.length}, расчёт учитывает все.`;
 }
 
-function showError(t) { $('msg').textContent = t; $('msg').classList.remove('hidden'); $('svg').innerHTML = ''; }
-function hideError() { $('msg').classList.add('hidden'); }
-
-calc();
+/* ---------- старт: всё пустое ---------- */
+parts = [newPart()];
+renderParts();
+setMode('sheet');
 </script>
 </body>
 </html>
